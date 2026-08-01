@@ -152,9 +152,13 @@ def feature_engineering(df):
     col_map = {
         'Flow Duration': 'flow_duration',
         'Total Fwd Packets': 'fwd_packets',
+        'Total Fwd Packet': 'fwd_packets', # Alternative spelling
         'Total Backward Packets': 'bwd_packets',
+        'Total Bwd packets': 'bwd_packets', # Alternative spelling
         'Total Length of Fwd Packets': 'fwd_bytes',
+        'Total Length of Fwd Packet': 'fwd_bytes', # Alternative spelling
         'Total Length of Bwd Packets': 'bwd_bytes',
+        'Total Length of Bwd Packet': 'bwd_bytes', # Alternative spelling
         'FIN Flag Count': 'fin_flag_count',
         'SYN Flag Count': 'syn_flag_count',
         'RST Flag Count': 'rst_flag_count',
@@ -166,7 +170,9 @@ def feature_engineering(df):
         'Flow IAT Max': 'flow_iat_max',
         'Flow IAT Min': 'flow_iat_min',
         'Source Port': 'src_port',
+        'Src Port': 'src_port', # Alternative spelling
         'Destination Port': 'dst_port',
+        'Dst Port': 'dst_port', # Alternative spelling
     }
     df_work = df.rename(columns=col_map)
 
@@ -201,7 +207,9 @@ def feature_engineering(df):
 def main():
     os.makedirs('models', exist_ok=True)
     
-    data_path = 'data/network/cicids2017_wednesday.csv'
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
+    data_path = os.path.join(project_root, 'data/network/cicids2017_wednesday.csv')
+    
     if os.path.exists(data_path):
         log(f"Loading data from {data_path}")
         df = pd.read_csv(data_path)
