@@ -330,7 +330,7 @@ Explain clearly what happened, why it was flagged, and the key indicators of the
         else:
             reasons.append(feat.human_readable_reason)
 
-    source = alert.source_module.capitalize()
+
     severity = alert.severity.value if hasattr(alert.severity, "value") else str(alert.severity)
     confidence = alert.confidence_score
     mitre_name = alert.mitre_technique_id.display_name if hasattr(alert.mitre_technique_id, "display_name") else str(alert.mitre_technique_id)

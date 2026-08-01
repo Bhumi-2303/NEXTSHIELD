@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     FRONTEND_ORIGIN: str = "http://localhost:3000"
 
     # Model paths (each module owns its own model, but paths live here)
-    PHISHING_MODEL_PATH: str = "models/phishing_classifier.pkl"
+    PHISHING_MODEL_PATH: str = "models/phishing_classifier.txt"
     ANOMALY_MODEL_PATH: str = "models/anomaly_detector.pkl"
 
     # Anomaly sub-model paths

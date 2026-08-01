@@ -40,6 +40,10 @@ class ThreatAlert(BaseModel):
         default_factory=dict,
         description="Raw feature vector used for prediction.",
     )
+    raw_payload: dict[str, Any] = Field(
+        default_factory=dict,
+        description="Raw payload (e.g. email body, sender) associated with the alert.",
+    )
     explanation: Optional[SHAPExplanation] = Field(
         None, description="SHAP explanation (populated by explainability module)."
     )

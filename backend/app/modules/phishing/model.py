@@ -10,10 +10,9 @@ remains functional for demos before any model is trained.
 
 from __future__ import annotations
 
-import os
-import pickle
 from pathlib import Path
-from typing import Any, Optional
+import lightgbm as lgb
+from typing import Any
 
 import numpy as np
 
@@ -23,7 +22,6 @@ from ...core.logging import get_logger
 from ...schemas.phishing import PhishingScanResult
 from ...schemas.shap_explanation import SHAPExplanation, SHAPFeature
 from .features import (
-    FEATURE_NAMES,
     extract_all_features,
     features_to_model_input,
 )
@@ -46,11 +44,16 @@ def load_model(path: str | None = None) -> bool:
     global _model, _model_loaded
     model_path = Path(path or settings.PHISHING_MODEL_PATH)
     if model_path.exists():
-        with open(model_path, "rb") as f:
-            _model = pickle.load(f)
-        _model_loaded = True
-        logger.info("Loaded phishing model from %s", model_path)
-        return True
+        try:
+            _model = lgb.Booster(model_file=str(model_path))
+            _model_loaded = True
+            logger.info("Loaded phishing model from %s", model_path)
+            return True
+        except Exception as exc:
+            logger.error("Failed to load LightGBM model from %s: %s", model_path, exc)
+            _model = None
+            _model_loaded = False
+            return False
     else:
         _model = None
         _model_loaded = False
@@ -230,9 +233,9 @@ def predict(
         vec = features_to_model_input(features)
         arr = np.array([vec])
         try:
-            # LightGBM predict_proba returns [[p_legit, p_phish]]
-            proba = _model.predict_proba(arr)
-            confidence = float(proba[0][1])
+            # LightGBM predict returns probability of class 1 for binary classification
+            proba = _model.predict(arr)
+            confidence = float(proba[0])
         except Exception as exc:
             logger.error("Model prediction failed, falling back to rules: %s", exc)
             confidence = _rule_based_score(features)

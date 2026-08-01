@@ -11,7 +11,9 @@ All features are returned as a flat dict suitable for model input.
 from __future__ import annotations
 
 import hashlib
-import math
+
+import hashlib
+import logging
 import re
 from typing import Any
 from urllib.parse import urlparse
@@ -147,7 +149,7 @@ def mock_whois_domain_age(domain: str) -> int | None:
         return well_known_ages[domain.lower()]
 
     # Deterministic synthetic age based on domain hash
-    h = int(hashlib.md5(domain.encode()).hexdigest(), 16)
+    h = int(hashlib.sha256(domain.encode()).hexdigest(), 16)
     # Bias: most legit domains are old, phishing domains are young
     # Use the hash to pick from a skewed distribution
     bucket = h % 100
@@ -323,8 +325,8 @@ def extract_url_features(urls: list[str]) -> dict[str, Any]:
             host = parsed.hostname or ""
             if re.match(r"^\d{1,3}(\.\d{1,3}){3}$", host):
                 flags.append("ip_based_url")
-        except Exception:
-            pass
+        except ValueError as e:
+            logging.warning("Failed to parse URL %s: %s", url, e)
 
     return {
         "url_count": len(urls),

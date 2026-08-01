@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { ShieldAlert, X } from 'lucide-react';
 import { ThreatAlert } from '../../lib/types';
-import { format } from 'date-fns';
 
 interface AlertDetailPanelProps {
   alert: ThreatAlert | null;
@@ -25,7 +24,7 @@ export function AlertDetailPanel({ alert, onClose }: AlertDetailPanelProps) {
   }
 
   // Format data for Recharts
-  const chartData = alert.explanation.features
+  const chartData = (alert.explanation?.top_features || [])
     .map(f => ({
       name: f.feature_name,
       value: f.shap_value,
@@ -55,7 +54,9 @@ export function AlertDetailPanel({ alert, onClose }: AlertDetailPanelProps) {
         <section>
           <h3 className="text-sm font-bold text-soc-muted uppercase tracking-wider mb-3">Incident Summary</h3>
           <div className="bg-soc-bg border border-soc-border p-4 rounded text-sm leading-relaxed">
-            {alert.explanation.summary}
+            {alert.explanation?.summary || (alert.source_module === 'anomaly' 
+              ? 'Network anomaly detected based on flow characteristics.' 
+              : 'No explanation provided.')}
           </div>
         </section>
 
@@ -63,7 +64,7 @@ export function AlertDetailPanel({ alert, onClose }: AlertDetailPanelProps) {
         <section>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-bold text-soc-muted uppercase tracking-wider">AI Explainability (SHAP)</h3>
-            <span className="text-xs font-mono text-soc-muted">Base Value: {alert.explanation.base_value.toFixed(2)}</span>
+            <span className="text-xs font-mono text-soc-muted">Base Value: {alert.explanation?.base_value?.toFixed(2)}</span>
           </div>
           <div className="bg-soc-bg border border-soc-border p-4 rounded h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -73,7 +74,7 @@ export function AlertDetailPanel({ alert, onClose }: AlertDetailPanelProps) {
                 <Tooltip 
                   cursor={{ fill: '#27272a' }} 
                   contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', color: '#e4e4e7' }}
-                  formatter={(value: any) => [typeof value === 'number' ? value.toFixed(3) : value, 'SHAP Value']}
+                  formatter={(value: unknown) => [typeof value === 'number' ? value.toFixed(3) : String(value), 'SHAP Value']}
                 />
                 <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={20}>
                   {chartData.map((entry, index) => (

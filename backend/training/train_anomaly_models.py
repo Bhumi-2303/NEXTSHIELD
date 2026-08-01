@@ -208,11 +208,12 @@ def main():
     os.makedirs('models', exist_ok=True)
     
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
-    data_path = os.path.join(project_root, 'data/network/cicids2017_wednesday.csv')
+    data_path = os.path.join(project_root, 'data/CICIDS2017/Wednesday-workingHours.pcap_ISCX.csv')
     
     if os.path.exists(data_path):
         log(f"Loading data from {data_path}")
         df = pd.read_csv(data_path)
+        df.columns = df.columns.str.strip()
     else:
         log(f"Data not found at {data_path}")
         df = generate_synthetic_data(10000)

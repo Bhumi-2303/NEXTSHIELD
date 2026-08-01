@@ -1,7 +1,7 @@
 import { ThreatAlert, Playbook, SimulationResult } from './types';
 import { mockAlerts, mockPlaybookT1566, mockPlaybookT1071 } from './mockData';
 
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 const API_BASE = 'http://localhost:8000/api/v1';
 
 export async function fetchAlerts(): Promise<ThreatAlert[]> {
@@ -25,7 +25,7 @@ export async function fetchPlaybookForAlert(mitreTechniqueId: string, severity: 
     return mockPlaybookT1566;
   }
 
-  const res = await fetch(`${API_BASE}/playbooks/simulate`, {
+  await fetch(`${API_BASE}/playbooks/simulate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ mitre_technique_id: mitreTechniqueId, severity }),

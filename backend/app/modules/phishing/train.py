@@ -22,8 +22,8 @@ Swap datasets by pointing ``--data`` at any CSV that has ``text`` and
 from __future__ import annotations
 
 import argparse
-import os
-import pickle
+
+
 import sys
 from pathlib import Path
 
@@ -166,9 +166,10 @@ def train(csv_path: str, output_path: str = "models/phishing_classifier.pkl"):
 
     # Save model
     output = Path(output_path)
+    if output.suffix == ".pkl":
+        output = output.with_suffix(".txt")
     output.parent.mkdir(parents=True, exist_ok=True)
-    with open(output, "wb") as f:
-        pickle.dump(model, f)
+    model.booster_.save_model(str(output))
     print(f"\n✅ Model saved to {output}")
 
 

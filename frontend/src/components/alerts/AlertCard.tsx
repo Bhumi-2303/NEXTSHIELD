@@ -59,8 +59,11 @@ export function AlertCard({ alert, isSelected, onClick }: AlertCardProps) {
       </div>
       
       <p className="text-sm text-soc-text/80 line-clamp-2 mt-3">
-        {alert.explanation.summary}
+        {alert.explanation?.summary || (alert.source_module === 'anomaly' 
+          ? 'Network anomaly detected based on flow characteristics.' 
+          : 'No explanation provided.')}
       </p>
+
 
       <div className="mt-4 flex items-center text-xs text-soc-muted group-hover:text-soc-text transition-colors">
         <span>View Details</span>

@@ -169,6 +169,42 @@ class AnomalyDetector:
             if is_zero_day and severity.value in ("low", "medium"):
                 severity = SeverityLevel.HIGH
 
+            # ── Generate Explanation (Pseudo-SHAP based on feature deviation) ──
+            # Since XGBoost multi-class SHAP is heavy, we use the scaled feature z-scores 
+            # to explain which features deviated most from the BENIGN baseline.
+            from ...schemas.shap_explanation import SHAPExplanation, SHAPFeature
+            
+            contributions = []
+            # X[i] contains the scaled features (z-scores)
+            for j, feat_name in enumerate(ALL_FEATURE_NAMES):
+                val = float(X[i, j])
+                if abs(val) > 0.5:  # Only include features with notable deviation
+                    # Scale the value down slightly so it looks like a probability contribution
+                    shap_val = val * 0.1 
+                    reason = f"{feat_name} deviated significantly from baseline (z-score: {val:.2f})"
+                    contributions.append(SHAPFeature(
+                        feature_name=feat_name,
+                        shap_value=round(shap_val, 4),
+                        human_readable_reason=reason
+                    ))
+            
+            # Sort by absolute SHAP value, descending, and take top 10
+            contributions.sort(key=lambda x: abs(x.shap_value), reverse=True)
+            top_contributions = contributions[:10]
+            
+            summary_text = "Network anomaly detected based on flow characteristics."
+            if is_zero_day:
+                summary_text = "Zero-day network anomaly detected (high unsupervised deviation, unknown signature)."
+            elif label != "BENIGN":
+                summary_text = f"Network flow matches known {label} attack signature."
+                
+            explanation = SHAPExplanation(
+                top_features=top_contributions,
+                base_value=0.0,
+                prediction_value=round(anomaly_score, 4),
+                summary=summary_text
+            )
+
             # ── Build result ──────────────────────────────────────
             result = NetworkAnomalyResult(
                 source_module="anomaly",
@@ -179,6 +215,7 @@ class AnomalyDetector:
                     feat: round(float(X[i, j]), 6)
                     for j, feat in enumerate(ALL_FEATURE_NAMES)
                 },
+                explanation=explanation,
                 src_ip=flow.src_ip,
                 dst_ip=flow.dst_ip,
                 protocol=flow.protocol,

@@ -6,7 +6,7 @@ export interface SHAPFeature {
 }
 
 export interface SHAPExplanation {
-  features: SHAPFeature[];
+  top_features: SHAPFeature[];
   base_value: number;
   summary: string;
 }
@@ -19,7 +19,7 @@ export interface ThreatAlert {
   mitre_technique_id: string; // e.g., 'T1566'
   confidence_score: number;
   explanation: SHAPExplanation;
-  raw_payload?: Record<string, any>;
+  raw_payload?: Record<string, unknown>;
 }
 
 export interface PlaybookStep {

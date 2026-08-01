@@ -13,8 +13,8 @@ time.  The engine provides:
 from __future__ import annotations
 
 import json
-import random
-import time
+import secrets
+
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Optional
@@ -61,7 +61,7 @@ def load_playbooks(data_dir: Path | str | None = None) -> int:
     Each JSON file may contain a single playbook object or an array of
     playbook objects.  Returns the number of playbooks loaded.
     """
-    global _playbooks, _loaded
+    global _loaded
 
     if data_dir is None:
         data_dir = _find_playbook_data_dir()
@@ -185,7 +185,7 @@ def simulate_response(playbook: Playbook) -> dict[str, Any]:
 
         if step.automatable:
             # Simulate execution: random 1-8 second "processing" time
-            exec_seconds = round(random.uniform(1.0, 8.0), 2)
+            exec_seconds = round(1.0 + (secrets.randbelow(700) / 100.0), 2)
             cursor += timedelta(seconds=exec_seconds)
 
             entry.update({
