@@ -9,7 +9,7 @@ export const mockAlerts: ThreatAlert[] = [
     mitre_technique_id: 'T1566',
     confidence_score: 0.88,
     explanation: {
-      features: [
+      top_features: [
         { feature_name: 'Urgency Score', shap_value: 0.45 },
         { feature_name: 'Lookalike Domain', shap_value: 0.35 },
         { feature_name: 'SPF Pass', shap_value: -0.1 },
@@ -27,7 +27,7 @@ export const mockAlerts: ThreatAlert[] = [
     mitre_technique_id: 'T1071',
     confidence_score: 0.94,
     explanation: {
-      features: [
+      top_features: [
         { feature_name: 'Beacon Interval Variance', shap_value: 0.6 },
         { feature_name: 'Bytes Out', shap_value: 0.25 },
       ],
@@ -43,7 +43,7 @@ export const mockAlerts: ThreatAlert[] = [
     mitre_technique_id: 'T1046',
     confidence_score: 0.72,
     explanation: {
-      features: [
+      top_features: [
         { feature_name: 'Unique Ports Scanned', shap_value: 0.4 },
         { feature_name: 'Connection Rate', shap_value: 0.3 },
       ],

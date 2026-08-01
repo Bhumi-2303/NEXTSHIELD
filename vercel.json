@@ -1,0 +1,12 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "installCommand": "npm install",
+  "rewrites": [
+    {
+      "source": "/api/v1/:match*",
+      "destination": "https://nextshield-backend.onrender.com/api/v1/:match*"
+    }
+  ]
+}

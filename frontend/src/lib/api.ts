@@ -25,11 +25,7 @@ export async function fetchPlaybookForAlert(mitreTechniqueId: string, severity: 
     return mockPlaybookT1566;
   }
 
-  await fetch(`${API_BASE}/playbooks/simulate`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ mitre_technique_id: mitreTechniqueId, severity }),
-  });
+
   // Note: The actual endpoint returns a simulation result, not the playbook itself.
   // Wait, if we want just the playbook to show steps, we need GET /playbooks/by-technique.
   // We'll use the first matched for now.
