@@ -552,17 +552,3 @@ Distributed under the MIT License. See `LICENSE` for more information.
 - [Hugging Face](https://huggingface.co/) for dataset hosting.
 
 ---
-
-# 📞 Contact
-
-**Tktirth**
-- GitHub: [@Tktirth](https://github.com/Tktirth)
-- Email: [Contact Me](mailto:Tktirth@users.noreply.github.com)
-
-Project Link: [https://github.com/Bhumi-2303/NEXTSHIELD](https://github.com/Bhumi-2303/NEXTSHIELD)
-
-<br />
-
-<div align="center">
-  <sub>Built with ❤️ by the open-source cybersecurity community.</sub>
-</div>
