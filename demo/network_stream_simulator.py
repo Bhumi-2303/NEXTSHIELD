@@ -1,3 +1,4 @@
+<<<<<<< ours
 #!/usr/bin/env python3
 """
 NEXTSHIELD Network Stream Simulator
@@ -230,3 +231,44 @@ def main():
 
 if __name__ == "__main__":
     main()
+=======
+import csv
+import time
+import urllib.request
+import json
+import sys
+
+API_URL = "http://localhost:8000/api/v1/anomaly/detect"
+
+def simulate_stream(csv_path: str, delay: float = 1.0):
+    print(f"[*] Starting network stream simulation from {csv_path}...")
+    with open(csv_path, "r") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            time.sleep(delay)
+            payload = {
+                "src_ip": row["src_ip"],
+                "dst_ip": row["dst_ip"],
+                "protocol": row["protocol"],
+                "bytes_out": int(row["bytes_out"]),
+                "bytes_in": int(row["bytes_in"]),
+                "duration_s": float(row["duration_s"]),
+                "flags": row["flags"]
+            }
+            try:
+                req = urllib.request.Request(API_URL, data=json.dumps(payload).encode('utf-8'), headers={'Content-Type': 'application/json'})
+                with urllib.request.urlopen(req) as resp:
+                    if resp.status == 200:
+                        data = json.loads(resp.read().decode('utf-8'))
+                        if data.get("severity") == "critical":
+                            print(f"    -> [ANOMALY DETECTED] {data['src_ip']} -> {data['dst_ip']} | Score: {data.get('confidence_score')}")
+            except Exception as e:
+                print(f"    -> [ERROR] Failed to send payload: {e}")
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        csv_file = sys.argv[1]
+    else:
+        csv_file = "demo_traffic.csv"
+    simulate_stream(csv_file, delay=3.0)
+>>>>>>> theirs

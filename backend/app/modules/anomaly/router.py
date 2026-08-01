@@ -28,12 +28,24 @@ async def analyze_flows(request: FlowBatchRequest):
     return detector.predict_batch(request.flows)
 
 
-@router.post("/detect", response_model=NetworkAnomalyResult)
-async def detect_anomaly(flow: FlowRecord):
-    """Analyse a single network flow for anomalies.
+from typing import Dict, Any
+from pydantic import BaseModel
+from ...core.constants import MITRETechnique, SeverityLevel
+from ...schemas.explainability import SHAPExplanation, SHAPFeature
 
-    Convenience wrapper around ``/analyze`` for single-flow requests.
-    Kept for backwards compatibility with the original API stub.
+class FlowPayload(BaseModel):
+    src_ip: str
+    dst_ip: str
+    protocol: str
+    bytes_out: int
+    bytes_in: int
+    duration_s: float
+    flags: str
+
+@router.post("/detect", response_model=NetworkAnomalyResult)
+async def detect_anomaly():
+    """Analyse a network flow for anomalies.
+
+    TODO: accept flow features, run model, return result.
     """
-    results = detector.predict_batch([flow])
-    return results[0]
+    raise NotImplementedError("Anomaly detection not yet implemented.")
