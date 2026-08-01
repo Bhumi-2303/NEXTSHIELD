@@ -39,25 +39,31 @@ async def get_live_alerts():
     
     _load_datasets()
     
-    # Decide which type of alert to generate (50/50 chance if both datasets available)
     can_phish = _dataset_phish_df is not None and not _dataset_phish_df.empty
     can_anomaly = _dataset_anomaly_df is not None and not _dataset_anomaly_df.empty
     
-    if not can_phish and not can_anomaly:
-        return _live_alerts
-        
-    choice = "phishing"
-    if can_phish and can_anomaly:
-        choice = random.choice(["phishing", "anomaly"])
-    elif can_anomaly:
-        choice = "anomaly"
+    # Randomly pick a module. Even if datasets are missing, we fallback to synthetic data.
+    choice = random.choice(["phishing", "anomaly"])
         
     if choice == "phishing":
-        row = _dataset_phish_df.sample(n=1).iloc[0]
-        text = str(row["text"])
-        lines = text.strip().split("\n", 1)
-        subject = lines[0][:200] if lines else "No Subject"
-        body = lines[1] if len(lines) > 1 else text
+        if can_phish:
+            row = _dataset_phish_df.sample(n=1).iloc[0]
+            text = str(row["text"])
+            lines = text.strip().split("\n", 1)
+            subject = lines[0][:200] if lines else "No Subject"
+            body = lines[1] if len(lines) > 1 else text
+            label = int(row.get("label", -1))
+        else:
+            # Synthetic fallback
+            is_attack = random.random() > 0.5
+            if is_attack:
+                subject = "URGENT: Your account will be suspended"
+                body = "Please login here to verify your identity: http://suspicious-link.com"
+                label = 1
+            else:
+                subject = "Meeting Notes - Q3 Planning"
+                body = "Hi team, attached are the notes from our Q3 planning session."
+                label = 0
         
         scan_result = phishing_model.predict(
             sender="unknown@example.com",
@@ -77,50 +83,88 @@ async def get_live_alerts():
                 "sender": "unknown@example.com",
                 "subject": subject,
                 "body_preview": body[:100] + "..." if len(body) > 100 else body,
-                "actual_label": int(row.get("label", -1))
+                "actual_label": label
             }
         )
         _live_alerts.insert(0, alert)
         
     elif choice == "anomaly":
-        row = _dataset_anomaly_df.sample(n=1).iloc[0]
-        # Build FlowRecord
-        # Try to map columns gracefully or fallback to 0/empty
-        
-        # We need a FlowRecord
+        if can_anomaly:
+            row = _dataset_anomaly_df.sample(n=1).iloc[0]
+            src_port = int(row.get("Source Port", row.get("Src Port", secrets.randbelow(64512) + 1024)))
+            dst_port = int(row.get("Destination Port", row.get("Dst Port", 80)))
+            protocol = str(row.get("Protocol", "TCP"))
+            flow_duration = float(row.get("Flow Duration", row.get("flow_duration", 100.0)))
+            fwd_packets = int(row.get("Total Fwd Packets", row.get("fwd_packets", 5)))
+            bwd_packets = int(row.get("Total Backward Packets", row.get("bwd_packets", 5)))
+            fwd_bytes = int(row.get("Total Length of Fwd Packets", row.get("fwd_bytes", 500)))
+            bwd_bytes = int(row.get("Total Length of Bwd Packets", row.get("bwd_bytes", 500)))
+            fin = int(row.get("FIN Flag Count", 0))
+            syn = int(row.get("SYN Flag Count", 0))
+            rst = int(row.get("RST Flag Count", 0))
+            psh = int(row.get("PSH Flag Count", 0))
+            ack = int(row.get("ACK Flag Count", 0))
+            urg = int(row.get("URG Flag Count", 0))
+            flow_iat_mean = float(row.get("Flow IAT Mean", 0.0))
+            flow_iat_std = float(row.get("Flow IAT Std", 0.0))
+            flow_iat_max = float(row.get("Flow IAT Max", 0.0))
+            flow_iat_min = float(row.get("Flow IAT Min", 0.0))
+            actual_label = str(row.get("Label", "UNKNOWN"))
+        else:
+            is_attack = random.random() > 0.5
+            src_port = secrets.randbelow(64512) + 1024
+            dst_port = 80 if not is_attack else 4444
+            protocol = "TCP"
+            flow_duration = 100.0 if not is_attack else 5000.0
+            fwd_packets = 5 if not is_attack else 100
+            bwd_packets = 5 if not is_attack else 100
+            fwd_bytes = 500 if not is_attack else 50000
+            bwd_bytes = 500 if not is_attack else 50000
+            fin = 0
+            syn = 1
+            rst = 0
+            psh = 0
+            ack = 1
+            urg = 0
+            flow_iat_mean = 10.0
+            flow_iat_std = 2.0
+            flow_iat_max = 20.0
+            flow_iat_min = 1.0
+            actual_label = "BENIGN" if not is_attack else "PortScan"
+            
         flow = FlowRecord(
             src_ip="192.168.1." + str(secrets.randbelow(241) + 10),
             dst_ip="10.0.0." + str(secrets.randbelow(241) + 10),
-            src_port=int(row.get("Source Port", row.get("Src Port", secrets.randbelow(64512) + 1024))),
-            dst_port=int(row.get("Destination Port", row.get("Dst Port", 80))),
-            protocol=str(row.get("Protocol", "TCP")),
-            flow_duration=float(row.get("Flow Duration", row.get("flow_duration", 100.0))),
-            fwd_packets=int(row.get("Total Fwd Packets", row.get("fwd_packets", 5))),
-            bwd_packets=int(row.get("Total Backward Packets", row.get("bwd_packets", 5))),
-            fwd_bytes=int(row.get("Total Length of Fwd Packets", row.get("fwd_bytes", 500))),
-            bwd_bytes=int(row.get("Total Length of Bwd Packets", row.get("bwd_bytes", 500))),
-            fin_flag_count=int(row.get("FIN Flag Count", 0)),
-            syn_flag_count=int(row.get("SYN Flag Count", 0)),
-            rst_flag_count=int(row.get("RST Flag Count", 0)),
-            psh_flag_count=int(row.get("PSH Flag Count", 0)),
-            ack_flag_count=int(row.get("ACK Flag Count", 0)),
-            urg_flag_count=int(row.get("URG Flag Count", 0)),
-            flow_iat_mean=float(row.get("Flow IAT Mean", 0.0)),
-            flow_iat_std=float(row.get("Flow IAT Std", 0.0)),
-            flow_iat_max=float(row.get("Flow IAT Max", 0.0)),
-            flow_iat_min=float(row.get("Flow IAT Min", 0.0)),
+            src_port=src_port,
+            dst_port=dst_port,
+            protocol=protocol,
+            flow_duration=flow_duration,
+            fwd_packets=fwd_packets,
+            bwd_packets=bwd_packets,
+            fwd_bytes=fwd_bytes,
+            bwd_bytes=bwd_bytes,
+            fin_flag_count=fin,
+            syn_flag_count=syn,
+            rst_flag_count=rst,
+            psh_flag_count=psh,
+            ack_flag_count=ack,
+            urg_flag_count=urg,
+            flow_iat_mean=flow_iat_mean,
+            flow_iat_std=flow_iat_std,
+            flow_iat_max=flow_iat_max,
+            flow_iat_min=flow_iat_min,
         )
         
         results = anomaly_detector.predict_batch([flow])
         if results:
             res = results[0]
             # Override ID and timestamp for the live feed
-            res.id = uuid.uuid4()
-            res.timestamp = datetime.now(timezone.utc)
+            res.id = str(uuid.uuid4())
+            res.timestamp = datetime.now(timezone.utc).isoformat()
             
             # Add true label from dataset into raw_payload for visibility
             res.raw_payload = {
-                "actual_label": str(row.get("Label", "UNKNOWN"))
+                "actual_label": actual_label
             }
             
             _live_alerts.insert(0, res)
@@ -129,3 +173,4 @@ async def get_live_alerts():
     _live_alerts = _live_alerts[:20]
         
     return _live_alerts
+
