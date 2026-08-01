@@ -31,7 +31,7 @@ async def analyze_flows(request: FlowBatchRequest):
 from typing import Dict, Any
 from pydantic import BaseModel
 from ...core.constants import MITRETechnique, SeverityLevel
-from ...schemas.explainability import SHAPExplanation, SHAPFeature
+from ...schemas.shap_explanation import SHAPExplanation, SHAPFeature
 
 class FlowPayload(BaseModel):
     src_ip: str
