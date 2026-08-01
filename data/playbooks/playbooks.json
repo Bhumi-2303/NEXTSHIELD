@@ -1,0 +1,260 @@
+[
+  {
+    "id": "PB-T1566-001",
+    "mitre_technique_id": "T1566",
+    "title": "Phishing Email — Credential Harvest Response",
+    "severity_threshold": "medium",
+    "estimated_response_time_minutes": 45,
+    "steps": [
+      {
+        "action": "Isolate reported email",
+        "description": "Quarantine the reported phishing email from all mailboxes across the organisation using the mail gateway admin console. Search for the sender address + subject line to find all copies.",
+        "automatable": true
+      },
+      {
+        "action": "Block sender domain",
+        "description": "Add the sender domain to the email gateway blocklist and update DNS-based blocklists (DNSBL). If the domain is a lookalike of a known brand, also add common typo-variants.",
+        "automatable": true
+      },
+      {
+        "action": "Identify affected users",
+        "description": "Query mail logs to identify all users who received or opened the phishing email. Cross-reference with proxy logs to determine if any user clicked the embedded URL.",
+        "automatable": true
+      },
+      {
+        "action": "Force credential reset",
+        "description": "For any user who clicked the phishing link: immediately force a password reset via the IdP (Okta / Azure AD / Google Workspace). Revoke active sessions and invalidate refresh tokens.",
+        "automatable": false
+      },
+      {
+        "action": "Scan endpoints for compromise",
+        "description": "Run a targeted EDR scan on endpoints of users who clicked the link. Check for malware drops, suspicious process execution, or credential-dumping tools.",
+        "automatable": false
+      },
+      {
+        "action": "Notify affected users",
+        "description": "Send a security advisory to all affected users explaining the phishing attempt, the indicators of compromise, and steps to verify their account integrity.",
+        "automatable": false
+      },
+      {
+        "action": "Update threat intelligence",
+        "description": "Add observed IOCs (sender domain, phishing URL, email hashes) to the internal TI platform and share with industry ISACs if applicable.",
+        "automatable": true
+      }
+    ]
+  },
+  {
+    "id": "PB-T1566-002",
+    "mitre_technique_id": "T1566",
+    "title": "Phishing Email — Low-Severity Awareness Response",
+    "severity_threshold": "low",
+    "estimated_response_time_minutes": 15,
+    "steps": [
+      {
+        "action": "Log phishing report",
+        "description": "Record the phishing report in the incident tracking system with sender, subject, body hash, and reporter information.",
+        "automatable": true
+      },
+      {
+        "action": "Verify with mail gateway",
+        "description": "Check if the email was already caught by the spam/phishing filter. If not, tune filter rules to catch similar messages.",
+        "automatable": true
+      },
+      {
+        "action": "Send reporter acknowledgement",
+        "description": "Thank the reporting user and provide a brief summary of the assessment. Reinforce good reporting behaviour.",
+        "automatable": false
+      }
+    ]
+  },
+  {
+    "id": "PB-T1071-001",
+    "mitre_technique_id": "T1071",
+    "title": "C2 Communication — Application Layer Protocol",
+    "severity_threshold": "high",
+    "estimated_response_time_minutes": 60,
+    "steps": [
+      {
+        "action": "Isolate compromised host",
+        "description": "Immediately network-isolate the host exhibiting C2 communication using EDR or NAC. Move the host to a quarantine VLAN to prevent lateral movement while preserving forensic state.",
+        "automatable": true
+      },
+      {
+        "action": "Block C2 destination",
+        "description": "Add the destination IP address, domain, and any associated infrastructure to firewall deny rules, DNS sinkhole, and proxy blocklists organisation-wide.",
+        "automatable": true
+      },
+      {
+        "action": "Capture network forensics",
+        "description": "Initiate a full packet capture (PCAP) on the quarantine VLAN for at least 30 minutes to capture any residual C2 beaconing. Export NetFlow data for the past 72 hours for the affected host.",
+        "automatable": false
+      },
+      {
+        "action": "Analyse C2 protocol",
+        "description": "Determine the C2 protocol (HTTP/S, DNS tunnelling, custom binary protocol). Extract beaconing intervals, data exfiltration volume, and command structure from captured traffic.",
+        "automatable": false
+      },
+      {
+        "action": "Sweep for lateral movement",
+        "description": "Search for C2 indicators across all hosts: same destination IP/domain hits in proxy logs, similar beaconing patterns, or related malware hashes in EDR telemetry.",
+        "automatable": true
+      },
+      {
+        "action": "Escalate to Tier 3 / IR lead",
+        "description": "If C2 activity is confirmed, escalate to the Incident Response lead. Prepare a preliminary incident report with timeline, affected assets, and IOCs.",
+        "automatable": false
+      }
+    ]
+  },
+  {
+    "id": "PB-T1046-001",
+    "mitre_technique_id": "T1046",
+    "title": "Network Service Discovery — Reconnaissance Response",
+    "severity_threshold": "medium",
+    "estimated_response_time_minutes": 30,
+    "steps": [
+      {
+        "action": "Rate-limit source IP",
+        "description": "Apply rate-limiting rules on the firewall / IDS for the source IP performing the scan. Limit to 10 new connections per minute to degrade scan effectiveness without fully blocking (to avoid tipping off the attacker).",
+        "automatable": true
+      },
+      {
+        "action": "Enrich source IP context",
+        "description": "Look up the source IP in threat intelligence feeds, GeoIP databases, and internal asset inventory. Determine if it is an internal host (possible lateral movement) or external (reconnaissance).",
+        "automatable": true
+      },
+      {
+        "action": "Alert SOC Tier 2",
+        "description": "Create a priority alert for SOC Tier 2 analysts with scan details: source IP, port range, scan type (SYN/UDP/service enumeration), duration, and number of unique targets.",
+        "automatable": true
+      },
+      {
+        "action": "Monitor for follow-up activity",
+        "description": "Set up a 24-hour watch for follow-up activity from the same source IP or targeting the same services. Look for exploitation attempts against discovered services.",
+        "automatable": false
+      },
+      {
+        "action": "Review exposed services",
+        "description": "Audit the services discovered by the scan. Verify that exposed ports are intentional, patched, and properly firewalled. Close any unnecessary services.",
+        "automatable": false
+      }
+    ]
+  },
+  {
+    "id": "PB-T1078-001",
+    "mitre_technique_id": "T1078",
+    "title": "Valid Account Abuse — Compromised Credentials Response",
+    "severity_threshold": "high",
+    "estimated_response_time_minutes": 40,
+    "steps": [
+      {
+        "action": "Force MFA re-authentication",
+        "description": "Immediately invalidate all active sessions for the compromised account and force multi-factor authentication re-enrollment. If MFA was already enabled, verify the MFA device has not been swapped.",
+        "automatable": true
+      },
+      {
+        "action": "Temporary account lock",
+        "description": "Place a temporary lock on the account (30-minute hold) while the investigation proceeds. Notify the legitimate account owner via an out-of-band channel (phone, SMS).",
+        "automatable": true
+      },
+      {
+        "action": "Review recent account activity",
+        "description": "Audit the account's activity for the past 7 days: login locations, accessed resources, data downloads, privilege escalation attempts, and any configuration changes.",
+        "automatable": false
+      },
+      {
+        "action": "Check for persistence mechanisms",
+        "description": "Look for attacker-created persistence: OAuth app grants, mail forwarding rules, API keys, SSH keys, or service account tokens created by the compromised account.",
+        "automatable": false
+      },
+      {
+        "action": "Reset credentials and revoke tokens",
+        "description": "Reset the account password, revoke all OAuth tokens, API keys, and application-specific passwords. Re-issue credentials via a secure channel.",
+        "automatable": true
+      },
+      {
+        "action": "Notify account owner",
+        "description": "Contact the legitimate account owner, brief them on the incident, and provide guidance on verifying their other accounts and devices.",
+        "automatable": false
+      }
+    ]
+  },
+  {
+    "id": "PB-T1499-001",
+    "mitre_technique_id": "T1499",
+    "title": "Endpoint Denial of Service — DDoS Mitigation",
+    "severity_threshold": "high",
+    "estimated_response_time_minutes": 25,
+    "steps": [
+      {
+        "action": "Enable rate limiting",
+        "description": "Activate aggressive rate-limiting rules on the WAF / load balancer for the targeted endpoint. Set thresholds based on baseline traffic patterns (e.g. 5x normal request rate).",
+        "automatable": true
+      },
+      {
+        "action": "Activate DDoS protection",
+        "description": "Enable upstream DDoS mitigation service (Cloudflare, AWS Shield, Akamai). Switch DNS to scrubbing centre if not already proxied.",
+        "automatable": true
+      },
+      {
+        "action": "Failover to backup endpoint",
+        "description": "If the primary endpoint is degraded, activate the failover endpoint or scale out behind the load balancer. Verify health checks are passing on the backup.",
+        "automatable": true
+      },
+      {
+        "action": "Analyse attack traffic",
+        "description": "Capture and analyse attack traffic patterns: source IP distribution, request characteristics, protocol abuse vectors. Identify if it is volumetric, protocol, or application-layer.",
+        "automatable": false
+      },
+      {
+        "action": "Notify infrastructure team",
+        "description": "Alert the infrastructure / SRE team with attack details, current mitigation status, and estimated impact. Open a bridge call if service degradation exceeds SLA thresholds.",
+        "automatable": false
+      },
+      {
+        "action": "Post-incident capacity review",
+        "description": "After mitigation, review auto-scaling policies, CDN configuration, and rate-limit thresholds. Update runbook with lessons learned.",
+        "automatable": false
+      }
+    ]
+  },
+  {
+    "id": "PB-T1078-002",
+    "mitre_technique_id": "T1078",
+    "title": "Valid Account Abuse — Insider Threat Response",
+    "severity_threshold": "critical",
+    "estimated_response_time_minutes": 90,
+    "steps": [
+      {
+        "action": "Preserve forensic evidence",
+        "description": "Before any containment action, ensure audit logs, access logs, and endpoint telemetry for the account are preserved and exported to a write-once forensic store.",
+        "automatable": true
+      },
+      {
+        "action": "Restrict account privileges",
+        "description": "Downgrade the account to read-only access across all systems. Do not fully disable to avoid alerting the insider if covert investigation is underway.",
+        "automatable": true
+      },
+      {
+        "action": "Engage HR and Legal",
+        "description": "Notify HR and Legal departments following the insider threat response protocol. Provide preliminary evidence summary and obtain authorisation for deeper investigation.",
+        "automatable": false
+      },
+      {
+        "action": "Deploy enhanced monitoring",
+        "description": "Enable verbose logging and DLP alerts on the account. Monitor for data exfiltration, unusual file access patterns, or attempts to cover tracks.",
+        "automatable": true
+      },
+      {
+        "action": "Conduct forensic analysis",
+        "description": "Perform a full forensic review of the account's activity: data accessed, files downloaded, emails sent, USB device usage, and print activity.",
+        "automatable": false
+      },
+      {
+        "action": "Containment decision",
+        "description": "Based on forensic findings, decide on full account suspension, device confiscation, or continued monitoring. Document decision rationale.",
+        "automatable": false
+      }
+    ]
+  }
+]
