@@ -26,7 +26,7 @@ export default function RespondPage() {
       const foundAlert = alerts.find(a => a.id === alertId);
       if (foundAlert) {
         setAlert(foundAlert);
-        const pb = await fetchPlaybookForAlert(foundAlert.mitre_technique_id, foundAlert.severity);
+        const pb = await fetchPlaybookForAlert(foundAlert.mitre_technique_id);
         setPlaybook(pb);
       }
     }

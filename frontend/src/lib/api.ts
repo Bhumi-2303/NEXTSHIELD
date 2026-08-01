@@ -16,7 +16,7 @@ export async function fetchAlerts(): Promise<ThreatAlert[]> {
   return res.json();
 }
 
-export async function fetchPlaybookForAlert(mitreTechniqueId: string, severity: string): Promise<Playbook> {
+export async function fetchPlaybookForAlert(mitreTechniqueId: string): Promise<Playbook> {
   if (USE_MOCK_DATA) {
     await new Promise((resolve) => setTimeout(resolve, 300));
     if (mitreTechniqueId === 'T1566') return mockPlaybookT1566;
