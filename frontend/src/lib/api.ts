@@ -2,7 +2,8 @@ import { ThreatAlert, Playbook, SimulationResult } from './types';
 import { mockAlerts, mockPlaybookT1566, mockPlaybookT1071 } from './mockData';
 
 const USE_MOCK_DATA = false;
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE = `${baseUrl.replace(/\/$/, '')}/api/v1`;
 
 export async function fetchAlerts(): Promise<ThreatAlert[]> {
   if (USE_MOCK_DATA) {
