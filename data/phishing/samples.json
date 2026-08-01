@@ -1,0 +1,65 @@
+[
+  {
+    "_comment": "PHISHING — classic credential-harvesting with urgency + lookalike domain",
+    "sender": "security-alert@paypa1-verify.xyz",
+    "subject": "URGENT: Your PayPal Account Has Been Suspended!",
+    "body": "Dear Customer,\n\nWe have detected unauthorized access to your PayPal account from an unrecognized device in Eastern Europe. Your account has been temporarily limited.\n\nYou must verify your identity within 24 hours or your account will be permanently closed.\n\nClick here to verify: http://paypa1-secure.xyz/verify?token=a8f3e\n\nIf you do not respond within the timeframe, we will be forced to permanently suspend your account and report the activity.\n\nRegards,\nPayPal Security Team",
+    "headers": {
+      "From": "PayPal Security <security-alert@paypa1-verify.xyz>",
+      "Authentication-Results": "mx.example.com; spf=fail; dkim=fail; dmarc=fail",
+      "Received-SPF": "fail"
+    },
+    "urls": ["http://paypa1-secure.xyz/verify?token=a8f3e"],
+    "expected_label": "phishing"
+  },
+  {
+    "_comment": "PHISHING — fake package delivery with shortened URL",
+    "sender": "tracking@dhl-delivery-notice.tk",
+    "subject": "DHL: Your package could not be delivered - Action Required",
+    "body": "Hello,\n\nWe attempted to deliver your package (Tracking #DHL-8847291) but were unable to reach you. A customs fee of $3.50 is required before re-delivery.\n\nPay the fee and schedule re-delivery:\nhttps://bit.ly/3xFakeLink\n\nIf payment is not received within 48 hours, your package will be returned to sender.\n\nDHL Customer Service",
+    "headers": {
+      "From": "DHL Delivery <tracking@dhl-delivery-notice.tk>",
+      "Authentication-Results": "mx.example.com; spf=fail; dkim=none; dmarc=fail"
+    },
+    "urls": ["https://bit.ly/3xFakeLink"],
+    "expected_label": "phishing"
+  },
+  {
+    "_comment": "LEGITIMATE — real GitHub notification",
+    "sender": "notifications@github.com",
+    "subject": "Re: [nextshield/backend] Fix CORS headers for preflight requests (#42)",
+    "body": "@alice-dev commented on this pull request.\n\nLooks good to me! Just one minor nit: can we add a test for the OPTIONS preflight handler?\n\nOtherwise LGTM, approving.\n\n---\nReply to this email directly or view it on GitHub:\nhttps://github.com/nextshield/backend/pull/42#issuecomment-12345",
+    "headers": {
+      "From": "GitHub <notifications@github.com>",
+      "Authentication-Results": "mx.example.com; spf=pass; dkim=pass; dmarc=pass",
+      "Received-SPF": "pass"
+    },
+    "urls": ["https://github.com/nextshield/backend/pull/42#issuecomment-12345"],
+    "expected_label": "legitimate"
+  },
+  {
+    "_comment": "LEGITIMATE — real Stripe payment receipt",
+    "sender": "receipts@stripe.com",
+    "subject": "Your receipt from NEXTSHIELD Pro",
+    "body": "Hi Bhumi,\n\nYour payment of $29.00 to NEXTSHIELD Pro was successful.\n\nInvoice #INV-2025-0042\nDate: July 28, 2025\nAmount: $29.00 USD\nCard: Visa ending in 4242\n\nView your receipt: https://pay.stripe.com/receipts/inv_abc123\n\nIf you have any questions, contact support@nextshield.dev.\n\nThanks,\nNEXTSHIELD Team",
+    "headers": {
+      "From": "Stripe <receipts@stripe.com>",
+      "Authentication-Results": "mx.example.com; spf=pass; dkim=pass; dmarc=pass",
+      "Received-SPF": "pass"
+    },
+    "urls": ["https://pay.stripe.com/receipts/inv_abc123"],
+    "expected_label": "legitimate"
+  },
+  {
+    "_comment": "PHISHING — IT admin password reset social engineering",
+    "sender": "it-helpdesk@company-portal.club",
+    "subject": "Mandatory Password Reset - IT Security Policy Update",
+    "body": "Dear User,\n\nAs part of our annual security compliance audit, all employees are required to reset their passwords immediately.\n\nPlease use the secure portal below to update your credentials:\nhttp://company-portal.club/reset-password\n\nFailure to comply within 12 hours will result in temporary account lockout.\n\nThis is an automated message. Do not reply.\n\nIT Security Department",
+    "headers": {
+      "From": "IT Help Desk <it-helpdesk@company-portal.club>",
+      "Authentication-Results": "mx.example.com; spf=none; dkim=none; dmarc=none"
+    },
+    "urls": ["http://company-portal.club/reset-password"],
+    "expected_label": "phishing"
+  }
+]
