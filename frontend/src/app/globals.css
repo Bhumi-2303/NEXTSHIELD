@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+@theme {
+  --color-soc-bg: #09090b; /* Zinc 950 */
+  --color-soc-panel: #18181b; /* Zinc 900 */
+  --color-soc-border: #27272a; /* Zinc 800 */
+  --color-soc-text: #e4e4e7; /* Zinc 200 */
+  --color-soc-muted: #a1a1aa; /* Zinc 400 */
+  
+  --color-sev-critical: #ef4444; /* Red 500 */
+  --color-sev-high: #f97316; /* Orange 500 */
+  --color-sev-medium: #eab308; /* Yellow 500 */
+  --color-sev-low: #3b82f6; /* Blue 500 */
+  --color-soc-success: #22c55e; /* Green 500 */
+  
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-soc-bg);
+    color: var(--color-soc-text);
+    font-family: var(--font-mono);
+  }
+}
