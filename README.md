@@ -155,7 +155,6 @@ NEXTSHIELD solves these issues by pairing **Hybrid Machine Learning** (unsupervi
   <table>
     <tr>
       <td align="center"><b>Desktop Dashboard</b><br><img src="https://via.placeholder.com/400x250?text=Desktop+Dashboard" alt="Desktop Dashboard"></td>
-      <td align="center"><b>Mobile View</b><br><img src="https://via.placeholder.com/400x250?text=Mobile+View" alt="Mobile View"></td>
     </tr>
     <tr>
       <td align="center"><b>Explainable AI (SHAP)</b><br><img src="https://via.placeholder.com/400x250?text=Explainability+Widget" alt="XAI"></td>
@@ -167,19 +166,6 @@ NEXTSHIELD solves these issues by pairing **Hybrid Machine Learning** (unsupervi
     </tr>
   </table>
 </div>
-
----
-
-# 🎮 Demo
-
-Experience NEXTSHIELD live in your browser.
-
-- **Live Demo Site:** [https://nextshield-demo.vercel.app](https://nextshield-demo.vercel.app) (Placeholder)
-- **Interactive API Swagger:** [https://api.nextshield.dev/docs](https://api.nextshield.dev/docs) (Placeholder)
-
-**Demo Credentials (Read-Only SOC Analyst):**
-- **Email:** `demo@nextshield.io`
-- **Password:** `soc-analyst-2026`
 
 ---
 
