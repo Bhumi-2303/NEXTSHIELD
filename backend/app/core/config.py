@@ -17,6 +17,17 @@ class Settings(BaseSettings):
     PHISHING_MODEL_PATH: str = "models/phishing_classifier.pkl"
     ANOMALY_MODEL_PATH: str = "models/anomaly_detector.pkl"
 
+    # Anomaly sub-model paths
+    ANOMALY_IFOREST_PATH: str = "models/anomaly_iforest.joblib"
+    ANOMALY_XGBOOST_PATH: str = "models/anomaly_xgboost.joblib"
+    ANOMALY_FEATURE_SCALER_PATH: str = "models/anomaly_scaler.joblib"
+    ANOMALY_LABEL_ENCODER_PATH: str = "models/anomaly_label_encoder.joblib"
+
+    # Ensemble weights for anomaly scoring
+    UNSUPERVISED_WEIGHT: float = 0.4
+    SUPERVISED_WEIGHT: float = 0.6
+    ZERO_DAY_SUPERVISED_THRESHOLD: float = 0.3
+
     # Thresholds
     CONFIDENCE_THRESHOLD: float = 0.5
 

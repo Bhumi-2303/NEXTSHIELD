@@ -9,6 +9,7 @@ from .shap_explanation import SHAPExplanation, SHAPFeature
 from .playbook import Playbook, PlaybookStep
 from .phishing import PhishingScanResult
 from .anomaly import NetworkAnomalyResult
+from .flow_request import FlowRecord, FlowBatchRequest
 
 __all__ = [
     "ThreatAlert",
@@ -18,4 +19,6 @@ __all__ = [
     "PlaybookStep",
     "PhishingScanResult",
     "NetworkAnomalyResult",
+    "FlowRecord",
+    "FlowBatchRequest",
 ]
